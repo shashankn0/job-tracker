@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 function SignIn() {
+  const navigate = useNavigate()
   const { signIn, signInWithGoogle } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -14,6 +16,7 @@ function SignIn() {
     setLoading(true)
     try {
       await signIn(email, password)
+      navigate('/')
     } catch (err) {
       setError(err.message || 'Failed to sign in. Please check your credentials.')
     } finally {
