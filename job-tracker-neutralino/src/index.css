@@ -1,0 +1,114 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  flex: 1;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+button.primary {
+  background-color: #e0344a;
+  color: white;
+}
+
+button.primary:hover {
+  background-color: #c92e42;
+}
+
+button.secondary {
+  background-color: #333;
+  color: #e0e0e0;
+}
+
+button.secondary:hover {
+  background-color: #444;
+}
+
+input, textarea {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  color: #e0e0e0;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #e0344a;
+}
+
+.card {
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+}
+
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  background-color: transparent;
+  color: #888;
+}
+
+.tab.active {
+  background-color: #e0344a;
+  color: white;
+}
+
+.tab:hover:not(.active) {
+  background-color: #333;
+}
+
+.job-item {
+  background-color: #333;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.job-item:hover {
+  background-color: #444;
+}
+
+.job-item.selected {
+  background-color: #e0344a;
+}

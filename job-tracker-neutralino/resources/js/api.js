@@ -1,82 +1,23 @@
-// neutralino api wrapper that mimics electronapi
-console.log('Loading API wrapper...');
-
-class NeutralinoAPI {
-  constructor() {
-    this.ready = false;
-    console.log('neutralinoapi constructor called');
-  }
-
-  async waitReady() {
-    if (this.ready) return;
-    try {
-      console.log('initializing neutralino...');
-      await Neutralino.init();
-      this.ready = true;
-      console.log('neutralino initialized successfully');
-    } catch (error) {
-      console.error('failed to initialize neutralino:', error);
-    }
-  }
-
-  async getAllJobs() {
-    await this.waitReady();
-    try {
-      const data = await Neutralino.storage.getData('jobs');
-      return { success: true, jobs: data ? JSON.parse(data) : [] };
-    } catch (error) {
-      console.error('error getting jobs:', error);
-      // handle case where storage key doesn't exist yet
-      if (error.code === 'NE_ST_NOSTKEX') {
-        return { success: true, jobs: [] };
-      }
-      return { success: false, error: error.message };
-    }
-  }
-
-  async saveJob(rawText, company, title) {
-    await this.waitReady();
-    try {
-      console.log('starting savejob, rawtext:', rawText, 'company:', company, 'title:', title);
-      
-      // get openrouter api key from storage
-      let apiKey = '';
-      try {
-        const configData = await Neutralino.storage.getData('config');
-        if (configData) {
-          const config = JSON.parse(configData);
-          apiKey = config.openRouterApiKey || '';
-        }
-      } catch (error) {
-        console.log('no config found, using empty api key');
-      }
-      
-      // clean the job description with ai if api key is available
-      let cleanedData = {
-        company: company || '',
-        title: title || '',
-        location: '',
-        role_id: '',
-        cleaned_text: rawText
-      };
-      
-      if (apiKey) {
-        console.log('calling openrouter api to clean job description...');
-        try {
-          const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${apiKey}`,
-              'Content-Type': 'application/json',
-              'HTTP-Referer': window.location.href,
-              'X-Title': 'Job Tracker'
-            },
-            body: JSON.stringify({
-              model: 'anthropic/claude-3-haiku',
-              messages: [
-                {
-                  role: 'user',
-                  content: `Extract and clean the following job posting. Return ONLY a JSON object with these exact keys:
+var sn=Object.defineProperty;var un=(G,Q,se)=>Q in G?sn(G,Q,{enumerable:!0,configurable:!0,writable:!0,value:se}):G[Q]=se;var Z=(G,Q,se)=>un(G,typeof Q!="symbol"?Q+"":Q,se);(function(){"use strict";function G(q){return q&&q.__esModule&&Object.prototype.hasOwnProperty.call(q,"default")?q.default:q}var Q={exports:{}};(function(q,c){var p=void 0,S=function(R){return p||(p=new Promise(function(j,H){var Yt,Kt;var D=typeof R<"u"?R:{},pe=D.onAbort;D.onAbort=function(e){H(new Error(e)),pe&&pe(e)},D.postRun=D.postRun||[],D.postRun.push(function(){j(D)}),q=void 0;var s;s||(s=typeof D<"u"?D:{});var bt=!!globalThis.window,ue=!!globalThis.WorkerGlobalScope;s.onRuntimeInitialized=function(){function e(o,l){switch(typeof l){case"boolean":on(o,l?1:0);break;case"number":tn(o,l);break;case"string":rn(o,l,-1,-1);break;case"object":if(l===null)rr(o);else if(l.length!=null){var h=Ue(l.length);T.set(l,h),nn(o,h,l.length,-1),Ae(h)}else Fe(o,"Wrong API use : tried to return a value of an unknown type ("+l+").",-1);break;default:rr(o)}}function t(o,l){for(var h=[],b=0;b<o;b+=1){var y=$(l+4*b,"i32"),v=Kr(y);if(v===1||v===2)y=en(y);else if(v===3)y=Gr(y);else if(v===4){v=y,y=Zr(v),v=Hr(v);for(var C=new Uint8Array(y),z=0;z<y;z+=1)C[z]=T[v+z];y=C}else y=null;h.push(y)}return h}function r(o,l){this.Qa=o,this.db=l,this.Oa=1,this.yb=[]}function n(o,l){if(this.db=l,this.ob=Ie(o),this.ob===null)throw Error("Unable to allocate memory for the SQL string");this.ub=this.ob,this.gb=this.Fb=null}function i(o){if(this.filename="dbfile_"+(4294967295*Math.random()>>>0),o!=null){var l=this.filename,h="/",b=l;if(h&&(h=typeof h=="string"?h:Ge(h),b=l?Ye(h+"/"+l):h),l=Rt(!0,!0),b=Nr(b,l),o){if(typeof o=="string"){h=Array(o.length);for(var y=0,v=o.length;y<v;++y)h[y]=o.charCodeAt(y);o=h}Le(b,l|146),h=be(b,577),Ct(h,o,0,o.length,0),it(h),Le(b,l)}}this.handleError(d(this.filename,a)),this.db=$(a,"i32"),ir(this.db),this.pb={},this.Sa={}}var a=oe(4),u=s.cwrap,d=u("sqlite3_open","number",["string","number"]),g=u("sqlite3_close_v2","number",["number"]),m=u("sqlite3_exec","number",["number","string","number","number","number"]),x=u("sqlite3_changes","number",["number"]),M=u("sqlite3_prepare_v2","number",["number","string","number","number","number"]),Zt=u("sqlite3_sql","string",["number"]),Lr=u("sqlite3_normalized_sql","string",["number"]),Gt=u("sqlite3_prepare_v2","number",["number","number","number","number","number"]),jr=u("sqlite3_bind_text","number",["number","number","number","number","number"]),Ht=u("sqlite3_bind_blob","number",["number","number","number","number","number"]),Pr=u("sqlite3_bind_double","number",["number","number","number"]),Dr=u("sqlite3_bind_int","number",["number","number","number"]),Ir=u("sqlite3_bind_parameter_index","number",["number","string"]),Ur=u("sqlite3_step","number",["number"]),zr=u("sqlite3_errmsg","string",["number"]),Jr=u("sqlite3_column_count","number",["number"]),Cr=u("sqlite3_data_count","number",["number"]),Fr=u("sqlite3_column_double","number",["number","number"]),er=u("sqlite3_column_text","string",["number","number"]),Qr=u("sqlite3_column_blob","number",["number","number"]),Br=u("sqlite3_column_bytes","number",["number","number"]),Wr=u("sqlite3_column_type","number",["number","number"]),$r=u("sqlite3_column_name","string",["number","number"]),Xr=u("sqlite3_reset","number",["number"]),Vr=u("sqlite3_clear_bindings","number",["number"]),Yr=u("sqlite3_finalize","number",["number"]),tr=u("sqlite3_create_function_v2","number","number string number number number number number number number".split(" ")),Kr=u("sqlite3_value_type","number",["number"]),Zr=u("sqlite3_value_bytes","number",["number"]),Gr=u("sqlite3_value_text","string",["number"]),Hr=u("sqlite3_value_blob","number",["number"]),en=u("sqlite3_value_double","number",["number"]),tn=u("sqlite3_result_double","",["number","number"]),rr=u("sqlite3_result_null","",["number"]),rn=u("sqlite3_result_text","",["number","string","number","number"]),nn=u("sqlite3_result_blob","",["number","number","number","number"]),on=u("sqlite3_result_int","",["number","number"]),Fe=u("sqlite3_result_error","",["number","string","number"]),nr=u("sqlite3_aggregate_context","number",["number","number"]),ir=u("RegisterExtensionFunctions","number",["number"]),or=u("sqlite3_update_hook","number",["number","number","number"]);r.prototype.bind=function(o){if(!this.Qa)throw"Statement closed";return this.reset(),Array.isArray(o)?this.Wb(o):o!=null&&typeof o=="object"?this.Xb(o):!0},r.prototype.step=function(){if(!this.Qa)throw"Statement closed";this.Oa=1;var o=Ur(this.Qa);switch(o){case 100:return!0;case 101:return!1;default:throw this.db.handleError(o)}},r.prototype.Pb=function(o){return o==null&&(o=this.Oa,this.Oa+=1),Fr(this.Qa,o)},r.prototype.hc=function(o){if(o==null&&(o=this.Oa,this.Oa+=1),o=er(this.Qa,o),typeof BigInt!="function")throw Error("BigInt is not supported");return BigInt(o)},r.prototype.mc=function(o){return o==null&&(o=this.Oa,this.Oa+=1),er(this.Qa,o)},r.prototype.getBlob=function(o){o==null&&(o=this.Oa,this.Oa+=1);var l=Br(this.Qa,o);o=Qr(this.Qa,o);for(var h=new Uint8Array(l),b=0;b<l;b+=1)h[b]=T[o+b];return h},r.prototype.get=function(o,l){l=l||{},o!=null&&this.bind(o)&&this.step(),o=[];for(var h=Cr(this.Qa),b=0;b<h;b+=1)switch(Wr(this.Qa,b)){case 1:var y=l.useBigInt?this.hc(b):this.Pb(b);o.push(y);break;case 2:o.push(this.Pb(b));break;case 3:o.push(this.mc(b));break;case 4:o.push(this.getBlob(b));break;default:o.push(null)}return o},r.prototype.Db=function(){for(var o=[],l=Jr(this.Qa),h=0;h<l;h+=1)o.push($r(this.Qa,h));return o},r.prototype.Ob=function(o,l){o=this.get(o,l),l=this.Db();for(var h={},b=0;b<l.length;b+=1)h[l[b]]=o[b];return h},r.prototype.lc=function(){return Zt(this.Qa)},r.prototype.ic=function(){return Lr(this.Qa)},r.prototype.Jb=function(o){return o!=null&&this.bind(o),this.step(),this.reset()},r.prototype.Lb=function(o,l){l==null&&(l=this.Oa,this.Oa+=1),o=Ie(o),this.yb.push(o),this.db.handleError(jr(this.Qa,l,o,-1,0))},r.prototype.Vb=function(o,l){l==null&&(l=this.Oa,this.Oa+=1);var h=Ue(o.length);T.set(o,h),this.yb.push(h),this.db.handleError(Ht(this.Qa,l,h,o.length,0))},r.prototype.Kb=function(o,l){l==null&&(l=this.Oa,this.Oa+=1),this.db.handleError((o===(o|0)?Dr:Pr)(this.Qa,l,o))},r.prototype.Yb=function(o){o==null&&(o=this.Oa,this.Oa+=1),Ht(this.Qa,o,0,0,0)},r.prototype.Mb=function(o,l){switch(l==null&&(l=this.Oa,this.Oa+=1),typeof o){case"string":this.Lb(o,l);return;case"number":this.Kb(o,l);return;case"bigint":this.Lb(o.toString(),l);return;case"boolean":this.Kb(o+0,l);return;case"object":if(o===null){this.Yb(l);return}if(o.length!=null){this.Vb(o,l);return}}throw"Wrong API use : tried to bind a value of an unknown type ("+o+")."},r.prototype.Xb=function(o){var l=this;return Object.keys(o).forEach(function(h){var b=Ir(l.Qa,h);b!==0&&l.Mb(o[h],b)}),!0},r.prototype.Wb=function(o){for(var l=0;l<o.length;l+=1)this.Mb(o[l],l+1);return!0},r.prototype.reset=function(){return this.Cb(),Vr(this.Qa)===0&&Xr(this.Qa)===0},r.prototype.Cb=function(){for(var o;(o=this.yb.pop())!==void 0;)Ae(o)},r.prototype.cb=function(){this.Cb();var o=Yr(this.Qa)===0;return delete this.db.pb[this.Qa],this.Qa=0,o},n.prototype.next=function(){if(this.ob===null)return{done:!0};if(this.gb!==null&&(this.gb.cb(),this.gb=null),!this.db.db)throw this.Ab(),Error("Database closed");var o=Je(),l=oe(4);ge(a),ge(l);try{this.db.handleError(Gt(this.db.db,this.ub,-1,a,l)),this.ub=$(l,"i32");var h=$(a,"i32");return h===0?(this.Ab(),{done:!0}):(this.gb=new r(h,this.db),this.db.pb[h]=this.gb,{value:this.gb,done:!1})}catch(b){throw this.Fb=N(this.ub),this.Ab(),b}finally{ze(o)}},n.prototype.Ab=function(){Ae(this.ob),this.ob=null},n.prototype.jc=function(){return this.Fb!==null?this.Fb:N(this.ub)},typeof Symbol=="function"&&typeof Symbol.iterator=="symbol"&&(n.prototype[Symbol.iterator]=function(){return this}),i.prototype.Jb=function(o,l){if(!this.db)throw"Database closed";if(l){o=this.Gb(o,l);try{o.step()}finally{o.cb()}}else this.handleError(m(this.db,o,0,0,a));return this},i.prototype.exec=function(o,l,h){if(!this.db)throw"Database closed";var b=null,y=null,v=null;try{v=y=Ie(o);var C=oe(4);for(o=[];$(v,"i8")!==0;){ge(a),ge(C),this.handleError(Gt(this.db,v,-1,a,C));var z=$(a,"i32");if(v=$(C,"i32"),z!==0){var P=null;for(b=new r(z,this),l!=null&&b.bind(l);b.step();)P===null&&(P={columns:b.Db(),values:[]},o.push(P)),P.values.push(b.get(null,h));b.cb()}}return o}catch(F){throw b&&b.cb(),F}finally{y&&Ae(y)}},i.prototype.ec=function(o,l,h,b,y){typeof l=="function"&&(b=h,h=l,l=void 0),o=this.Gb(o,l);try{for(;o.step();)h(o.Ob(null,y))}finally{o.cb()}if(typeof b=="function")return b()},i.prototype.Gb=function(o,l){if(ge(a),this.handleError(M(this.db,o,-1,a,0)),o=$(a,"i32"),o===0)throw"Nothing to prepare";var h=new r(o,this);return l!=null&&h.bind(l),this.pb[o]=h},i.prototype.pc=function(o){return new n(o,this)},i.prototype.fc=function(){Object.values(this.pb).forEach(function(l){l.cb()}),Object.values(this.Sa).forEach(Y),this.Sa={},this.handleError(g(this.db));var o=Rr(this.filename);return this.handleError(d(this.filename,a)),this.db=$(a,"i32"),ir(this.db),o},i.prototype.close=function(){this.db!==null&&(Object.values(this.pb).forEach(function(o){o.cb()}),Object.values(this.Sa).forEach(Y),this.Sa={},this.fb&&(Y(this.fb),this.fb=void 0),this.handleError(g(this.db)),Dt("/"+this.filename),this.db=null)},i.prototype.handleError=function(o){if(o===0)return null;throw o=zr(this.db),Error(o)},i.prototype.kc=function(){return x(this.db)},i.prototype.bc=function(o,l){Object.prototype.hasOwnProperty.call(this.Sa,o)&&(Y(this.Sa[o]),delete this.Sa[o]);var h=xe(function(b,y,v){y=t(y,v);try{var C=l.apply(null,y)}catch(z){Fe(b,z,-1);return}e(b,C)},"viii");return this.Sa[o]=h,this.handleError(tr(this.db,o,l.length,1,0,h,0,0,0)),this},i.prototype.ac=function(o,l){var h=l.init||function(){return null},b=l.finalize||function(P){return P},y=l.step;if(!y)throw"An aggregate function must have a step function in "+o;var v={};Object.hasOwnProperty.call(this.Sa,o)&&(Y(this.Sa[o]),delete this.Sa[o]),l=o+"__finalize",Object.hasOwnProperty.call(this.Sa,l)&&(Y(this.Sa[l]),delete this.Sa[l]);var C=xe(function(P,F,ct){var ae=nr(P,1);Object.hasOwnProperty.call(v,ae)||(v[ae]=h()),F=t(F,ct),F=[v[ae]].concat(F);try{v[ae]=y.apply(null,F)}catch(an){delete v[ae],Fe(P,an,-1)}},"viii"),z=xe(function(P){var F=nr(P,1);try{var ct=b(v[F])}catch(ae){delete v[F],Fe(P,ae,-1);return}e(P,ct),delete v[F]},"vi");return this.Sa[o]=C,this.Sa[l]=z,this.handleError(tr(this.db,o,y.length-1,1,0,0,C,z,0)),this},i.prototype.vc=function(o){return this.fb&&(or(this.db,0,0),Y(this.fb),this.fb=void 0),o?(this.fb=xe(function(l,h,b,y,v){switch(h){case 18:l="insert";break;case 23:l="update";break;case 9:l="delete";break;default:throw"unknown operationCode in updateHook callback: "+h}if(b=N(b),y=N(y),v>Number.MAX_SAFE_INTEGER)throw"rowId too big to fit inside a Number";o(l,b,y,Number(v))},"viiiij"),or(this.db,this.fb,0),this):this},r.prototype.bind=r.prototype.bind,r.prototype.step=r.prototype.step,r.prototype.get=r.prototype.get,r.prototype.getColumnNames=r.prototype.Db,r.prototype.getAsObject=r.prototype.Ob,r.prototype.getSQL=r.prototype.lc,r.prototype.getNormalizedSQL=r.prototype.ic,r.prototype.run=r.prototype.Jb,r.prototype.reset=r.prototype.reset,r.prototype.freemem=r.prototype.Cb,r.prototype.free=r.prototype.cb,n.prototype.next=n.prototype.next,n.prototype.getRemainingSQL=n.prototype.jc,i.prototype.run=i.prototype.Jb,i.prototype.exec=i.prototype.exec,i.prototype.each=i.prototype.ec,i.prototype.prepare=i.prototype.Gb,i.prototype.iterateStatements=i.prototype.pc,i.prototype.export=i.prototype.fc,i.prototype.close=i.prototype.close,i.prototype.handleError=i.prototype.handleError,i.prototype.getRowsModified=i.prototype.kc,i.prototype.create_function=i.prototype.bc,i.prototype.create_aggregate=i.prototype.ac,i.prototype.updateHook=i.prototype.vc,s.Database=i};var I="./this.program",le=(Kt=(Yt=globalThis.document)==null?void 0:Yt.currentScript)==null?void 0:Kt.src;ue&&(le=self.location.href);var de="",Ne,Qe;if(bt||ue){try{de=new URL(".",le).href}catch{}ue&&(Qe=e=>{var t=new XMLHttpRequest;return t.open("GET",e,!1),t.responseType="arraybuffer",t.send(null),new Uint8Array(t.response)}),Ne=async e=>{if(e=await fetch(e,{credentials:"same-origin"}),e.ok)return e.arrayBuffer();throw Error(e.status+" : "+e.url)}}var Be=console.log.bind(console),ee=console.error.bind(console),we,Re=!1,We,T,k,me,A,_,$e,Xe,J;function pt(){var e=Ce.buffer;T=new Int8Array(e),me=new Int16Array(e),k=new Uint8Array(e),A=new Int32Array(e),_=new Uint32Array(e),$e=new Float32Array(e),Xe=new Float64Array(e),J=new BigInt64Array(e),new BigUint64Array(e)}function ye(e){var t;throw(t=s.onAbort)==null||t.call(s,e),e="Aborted("+e+")",ee(e),Re=!0,new WebAssembly.RuntimeError(e+". Build with -sASSERTIONS for more info.")}var Ve;async function cr(e){if(!we)try{var t=await Ne(e);return new Uint8Array(t)}catch{}if(e==Ve&&we)e=new Uint8Array(we);else if(Qe)e=Qe(e);else throw"both async and sync fetching of the wasm failed";return e}async function hr(e,t){try{var r=await cr(e);return await WebAssembly.instantiate(r,t)}catch(n){ee(`failed to asynchronously prepare wasm: ${n}`),ye(n)}}async function br(e){var t=Ve;if(!we)try{var r=fetch(t,{credentials:"same-origin"});return await WebAssembly.instantiateStreaming(r,e)}catch(n){ee(`wasm streaming compile failed: ${n}`),ee("falling back to ArrayBuffer instantiation")}return hr(t,e)}class dt{constructor(t){Z(this,"name","ExitStatus");this.message=`Program terminated with exit(${t})`,this.status=t}}var wt=e=>{for(;0<e.length;)e.shift()(s)},mt=[],yt=[],pr=()=>{var e=s.preRun.shift();yt.push(e)},te=0,ve=null;function $(e,t="i8"){switch(t.endsWith("*")&&(t="*"),t){case"i1":return T[e];case"i8":return T[e];case"i16":return me[e>>1];case"i32":return A[e>>2];case"i64":return J[e>>3];case"float":return $e[e>>2];case"double":return Xe[e>>3];case"*":return _[e>>2];default:ye(`invalid type for getValue: ${t}`)}}var Te=!0;function ge(e){var t="i32";switch(t.endsWith("*")&&(t="*"),t){case"i1":T[e]=0;break;case"i8":T[e]=0;break;case"i16":me[e>>1]=0;break;case"i32":A[e>>2]=0;break;case"i64":J[e>>3]=BigInt(0);break;case"float":$e[e>>2]=0;break;case"double":Xe[e>>3]=0;break;case"*":_[e>>2]=0;break;default:ye(`invalid type for setValue: ${t}`)}}var vt=new TextDecoder,gt=(e,t,r,n)=>{if(r=t+r,n)return r;for(;e[t]&&!(t>=r);)++t;return t},N=(e,t,r)=>e?vt.decode(k.subarray(e,gt(k,e,t,r))):"",_t=(e,t)=>{for(var r=0,n=e.length-1;0<=n;n--){var i=e[n];i==="."?e.splice(n,1):i===".."?(e.splice(n,1),r++):r&&(e.splice(n,1),r--)}if(t)for(;r;r--)e.unshift("..");return e},Ye=e=>{var t=e.charAt(0)==="/",r=e.slice(-1)==="/";return(e=_t(e.split("/").filter(n=>!!n),!t).join("/"))||t||(e="."),e&&r&&(e+="/"),(t?"/":"")+e},Et=e=>{var t=/^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/.exec(e).slice(1);return e=t[0],t=t[1],!e&&!t?".":(t&&(t=t.slice(0,-1)),e+t)},Se=e=>e&&e.match(/([^\/]+|\/)\/*$/)[1],dr=()=>e=>crypto.getRandomValues(e),xt=e=>{(xt=dr())(e)},wr=(...e)=>{for(var t="",r=!1,n=e.length-1;-1<=n&&!r;n--){if(r=0<=n?e[n]:"/",typeof r!="string")throw new TypeError("Arguments to path.resolve must be strings");if(!r)return"";t=r+"/"+t,r=r.charAt(0)==="/"}return t=_t(t.split("/").filter(i=>!!i),!r).join("/"),(r?"/":"")+t||"."},qe=e=>{var t=gt(e,0);return vt.decode(e.buffer?e.subarray(0,t):new Uint8Array(e.slice(0,t)))},Ke=[],fe=e=>{for(var t=0,r=0;r<e.length;++r){var n=e.charCodeAt(r);127>=n?t++:2047>=n?t+=2:55296<=n&&57343>=n?(t+=4,++r):t+=3}return t},B=(e,t,r,n)=>{if(!(0<n))return 0;var i=r;n=r+n-1;for(var a=0;a<e.length;++a){var u=e.codePointAt(a);if(127>=u){if(r>=n)break;t[r++]=u}else if(2047>=u){if(r+1>=n)break;t[r++]=192|u>>6,t[r++]=128|u&63}else if(65535>=u){if(r+2>=n)break;t[r++]=224|u>>12,t[r++]=128|u>>6&63,t[r++]=128|u&63}else{if(r+3>=n)break;t[r++]=240|u>>18,t[r++]=128|u>>12&63,t[r++]=128|u>>6&63,t[r++]=128|u&63,a++}}return t[r]=0,r-i},At=[];function Nt(e,t){At[e]={input:[],output:[],kb:t},rt(e,mr)}var mr={open(e){var t=At[e.node.nb];if(!t)throw new f(43);e.Va=t,e.seekable=!1},close(e){e.Va.kb.lb(e.Va)},lb(e){e.Va.kb.lb(e.Va)},read(e,t,r,n){if(!e.Va||!e.Va.kb.Qb)throw new f(60);for(var i=0,a=0;a<n;a++){try{var u=e.Va.kb.Qb(e.Va)}catch{throw new f(29)}if(u===void 0&&i===0)throw new f(6);if(u==null)break;i++,t[r+a]=u}return i&&(e.node.$a=Date.now()),i},write(e,t,r,n){if(!e.Va||!e.Va.kb.Hb)throw new f(60);try{for(var i=0;i<n;i++)e.Va.kb.Hb(e.Va,t[r+i])}catch{throw new f(29)}return n&&(e.node.Ua=e.node.Ta=Date.now()),i}},yr={Qb(){var r;e:{if(!Ke.length){var e=null;if((r=globalThis.window)!=null&&r.prompt&&(e=window.prompt("Input: "),e!==null&&(e+=`
+`)),!e){var t=null;break e}t=Array(fe(e)+1),e=B(e,t,0,t.length),t.length=e,Ke=t}t=Ke.shift()}return t},Hb(e,t){t===null||t===10?(Be(qe(e.output)),e.output=[]):t!=0&&e.output.push(t)},lb(e){var t;0<((t=e.output)==null?void 0:t.length)&&(Be(qe(e.output)),e.output=[])},Dc(){return{yc:25856,Ac:5,xc:191,zc:35387,wc:[3,28,127,21,4,0,1,0,17,19,26,0,18,15,23,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},Ec(){return 0},Fc(){return[24,80]}},vr={Hb(e,t){t===null||t===10?(ee(qe(e.output)),e.output=[]):t!=0&&e.output.push(t)},lb(e){var t;0<((t=e.output)==null?void 0:t.length)&&(ee(qe(e.output)),e.output=[])}},w={Za:null,ab(){return w.createNode(null,"/",16895,0)},createNode(e,t,r,n){if((r&61440)===24576||(r&61440)===4096)throw new f(63);return w.Za||(w.Za={dir:{node:{Wa:w.La.Wa,Xa:w.La.Xa,mb:w.La.mb,rb:w.La.rb,Tb:w.La.Tb,xb:w.La.xb,vb:w.La.vb,Ib:w.La.Ib,wb:w.La.wb},stream:{Ya:w.Ma.Ya}},file:{node:{Wa:w.La.Wa,Xa:w.La.Xa},stream:{Ya:w.Ma.Ya,read:w.Ma.read,write:w.Ma.write,sb:w.Ma.sb,tb:w.Ma.tb}},link:{node:{Wa:w.La.Wa,Xa:w.La.Xa,eb:w.La.eb},stream:{}},Nb:{node:{Wa:w.La.Wa,Xa:w.La.Xa},stream:Ar}}),r=Mt(e,t,r,n),L(r.mode)?(r.La=w.Za.dir.node,r.Ma=w.Za.dir.stream,r.Na={}):(r.mode&61440)===32768?(r.La=w.Za.file.node,r.Ma=w.Za.file.stream,r.Ra=0,r.Na=null):(r.mode&61440)===40960?(r.La=w.Za.link.node,r.Ma=w.Za.link.stream):(r.mode&61440)===8192&&(r.La=w.Za.Nb.node,r.Ma=w.Za.Nb.stream),r.$a=r.Ua=r.Ta=Date.now(),e&&(e.Na[t]=r,e.$a=e.Ua=e.Ta=r.$a),r},Cc(e){return e.Na?e.Na.subarray?e.Na.subarray(0,e.Ra):new Uint8Array(e.Na):new Uint8Array(0)},La:{Wa(e){var t={};return t.cc=(e.mode&61440)===8192?e.id:1,t.oc=e.id,t.mode=e.mode,t.rc=1,t.uid=0,t.nc=0,t.nb=e.nb,L(e.mode)?t.size=4096:(e.mode&61440)===32768?t.size=e.Ra:(e.mode&61440)===40960?t.size=e.link.length:t.size=0,t.$a=new Date(e.$a),t.Ua=new Date(e.Ua),t.Ta=new Date(e.Ta),t.Zb=4096,t.$b=Math.ceil(t.size/t.Zb),t},Xa(e,t){for(var r of["mode","atime","mtime","ctime"])t[r]!=null&&(e[r]=t[r]);t.size!==void 0&&(t=t.size,e.Ra!=t&&(t==0?(e.Na=null,e.Ra=0):(r=e.Na,e.Na=new Uint8Array(t),r&&e.Na.set(r.subarray(0,Math.min(t,e.Ra))),e.Ra=t)))},mb(){throw w.zb||(w.zb=new f(44),w.zb.stack="<generic error, no stack>"),w.zb},rb(e,t,r,n){return w.createNode(e,t,r,n)},Tb(e,t,r){try{var n=re(t,r)}catch{}if(n){if(L(e.mode))for(var i in n.Na)throw new f(55);et(n)}delete e.parent.Na[e.name],t.Na[r]=e,e.name=r,t.Ta=t.Ua=e.parent.Ta=e.parent.Ua=Date.now()},xb(e,t){delete e.Na[t],e.Ta=e.Ua=Date.now()},vb(e,t){var r=re(e,t),n;for(n in r.Na)throw new f(55);delete e.Na[t],e.Ta=e.Ua=Date.now()},Ib(e){return[".","..",...Object.keys(e.Na)]},wb(e,t,r){return e=w.createNode(e,t,41471,0),e.link=r,e},eb(e){if((e.mode&61440)!==40960)throw new f(28);return e.link}},Ma:{read(e,t,r,n,i){var a=e.node.Na;if(i>=e.node.Ra)return 0;if(e=Math.min(e.node.Ra-i,n),8<e&&a.subarray)t.set(a.subarray(i,i+e),r);else for(n=0;n<e;n++)t[r+n]=a[i+n];return e},write(e,t,r,n,i,a){if(t.buffer===T.buffer&&(a=!1),!n)return 0;if(e=e.node,e.Ua=e.Ta=Date.now(),t.subarray&&(!e.Na||e.Na.subarray)){if(a)return e.Na=t.subarray(r,r+n),e.Ra=n;if(e.Ra===0&&i===0)return e.Na=t.slice(r,r+n),e.Ra=n;if(i+n<=e.Ra)return e.Na.set(t.subarray(r,r+n),i),n}a=i+n;var u=e.Na?e.Na.length:0;if(u>=a||(a=Math.max(a,u*(1048576>u?2:1.125)>>>0),u!=0&&(a=Math.max(a,256)),u=e.Na,e.Na=new Uint8Array(a),0<e.Ra&&e.Na.set(u.subarray(0,e.Ra),0)),e.Na.subarray&&t.subarray)e.Na.set(t.subarray(r,r+n),i);else for(a=0;a<n;a++)e.Na[i+a]=t[r+a];return e.Ra=Math.max(e.Ra,i+n),n},Ya(e,t,r){if(r===1?t+=e.position:r===2&&(e.node.mode&61440)===32768&&(t+=e.node.Ra),0>t)throw new f(28);return t},sb(e,t,r,n,i){if((e.node.mode&61440)!==32768)throw new f(43);if(e=e.node.Na,i&2||!e||e.buffer!==T.buffer){i=!0,n=65536*Math.ceil(t/65536);var a=Xt(65536,n);if(a&&k.fill(0,a,a+n),n=a,!n)throw new f(48);e&&((0<r||r+t<e.length)&&(e.subarray?e=e.subarray(r,r+t):e=Array.prototype.slice.call(e,r,r+t)),T.set(e,n))}else i=!1,n=e.byteOffset;return{tc:n,Ub:i}},tb(e,t,r,n){return w.Ma.write(e,t,0,n,r,!1),0}}},Rt=(e,t)=>{var r=0;return e&&(r|=365),t&&(r|=146),r},Ze=null,Tt={},ce=[],gr=1,X=null,St=!1,qt=!0,f=class{constructor(e){Z(this,"name","ErrnoError");this.Pa=e}},_r=class{constructor(){Z(this,"qb",{});Z(this,"node",null)}get flags(){return this.qb.flags}set flags(e){this.qb.flags=e}get position(){return this.qb.position}set position(e){this.qb.position=e}},Er=class{constructor(e,t,r,n){Z(this,"La",{});Z(this,"Ma",{});Z(this,"ib",null);e||(e=this),this.parent=e,this.ab=e.ab,this.id=gr++,this.name=t,this.mode=r,this.nb=n,this.$a=this.Ua=this.Ta=Date.now()}get read(){return(this.mode&365)===365}set read(e){e?this.mode|=365:this.mode&=-366}get write(){return(this.mode&146)===146}set write(e){e?this.mode|=146:this.mode&=-147}};function U(e,t={}){if(!e)throw new f(44);t.Bb??(t.Bb=!0),e.charAt(0)==="/"||(e="//"+e);var r=0;e:for(;40>r;r++){e=e.split("/").filter(d=>!!d);for(var n=Ze,i="/",a=0;a<e.length;a++){var u=a===e.length-1;if(u&&t.parent)break;if(e[a]!==".")if(e[a]==="..")if(i=Et(i),n===n.parent){e=i+"/"+e.slice(a+1).join("/"),r--;continue e}else n=n.parent;else{i=Ye(i+"/"+e[a]);try{n=re(n,e[a])}catch(d){if((d==null?void 0:d.Pa)===44&&u&&t.sc)return{path:i};throw d}if(!n.ib||u&&!t.Bb||(n=n.ib.root),(n.mode&61440)===40960&&(!u||t.hb)){if(!n.La.eb)throw new f(52);n=n.La.eb(n),n.charAt(0)==="/"||(n=Et(i)+"/"+n),e=n+"/"+e.slice(a+1).join("/");continue e}}}return{path:i,node:n}}throw new f(32)}function Ge(e){for(var t;;){if(e===e.parent)return e=e.ab.Sb,t?e[e.length-1]!=="/"?`${e}/${t}`:e+t:e;t=t?`${e.name}/${t}`:e.name,e=e.parent}}function He(e,t){for(var r=0,n=0;n<t.length;n++)r=(r<<5)-r+t.charCodeAt(n)|0;return(e+r>>>0)%X.length}function et(e){var t=He(e.parent.id,e.name);if(X[t]===e)X[t]=e.jb;else for(t=X[t];t;){if(t.jb===e){t.jb=e.jb;break}t=t.jb}}function re(e,t){var r=L(e.mode)?(r=he(e,"x"))?r:e.La.mb?0:2:54;if(r)throw new f(r);for(r=X[He(e.id,t)];r;r=r.jb){var n=r.name;if(r.parent.id===e.id&&n===t)return r}return e.La.mb(e,t)}function Mt(e,t,r,n){return e=new Er(e,t,r,n),t=He(e.parent.id,e.name),e.jb=X[t],X[t]=e}function L(e){return(e&61440)===16384}function he(e,t){return qt?0:t.includes("r")&&!(e.mode&292)||t.includes("w")&&!(e.mode&146)||t.includes("x")&&!(e.mode&73)?2:0}function kt(e,t){if(!L(e.mode))return 54;try{return re(e,t),20}catch{}return he(e,"wx")}function Ot(e,t,r){try{var n=re(e,t)}catch(i){return i.Pa}if(e=he(e,"wx"))return e;if(r){if(!L(n.mode))return 54;if(n===n.parent||Ge(n)==="/")return 10}else if(L(n.mode))return 31;return 0}function Me(e){if(!e)throw new f(63);return e}function O(e){if(e=ce[e],!e)throw new f(8);return e}function Lt(e,t=-1){if(e=Object.assign(new _r,e),t==-1)e:{for(t=0;4096>=t;t++)if(!ce[t])break e;throw new f(33)}return e.bb=t,ce[t]=e}function xr(e,t=-1){var r,n;return e=Lt(e,t),(n=(r=e.Ma)==null?void 0:r.Bc)==null||n.call(r,e),e}function tt(e,t,r){var n=e==null?void 0:e.Ma.Xa;e=n?e:t,n??(n=t.La.Xa),Me(n),n(e,r)}var Ar={open(e){var t,r;e.Ma=Tt[e.node.nb].Ma,(r=(t=e.Ma).open)==null||r.call(t,e)},Ya(){throw new f(70)}};function rt(e,t){Tt[e]={Ma:t}}function jt(e,t){var r=t==="/";if(r&&Ze)throw new f(10);if(!r&&t){var n=U(t,{Bb:!1});if(t=n.path,n=n.node,n.ib)throw new f(10);if(!L(n.mode))throw new f(54)}t={type:e,Gc:{},Sb:t,qc:[]},e=e.ab(t),e.ab=t,t.root=e,r?Ze=e:n&&(n.ib=t,n.ab&&n.ab.qc.push(t))}function ke(e,t,r){var n=U(e,{parent:!0}).node;if(e=Se(e),!e)throw new f(28);if(e==="."||e==="..")throw new f(20);var i=kt(n,e);if(i)throw new f(i);if(!n.La.rb)throw new f(63);return n.La.rb(n,e,t,r)}function Nr(e,t=438){return ke(e,t&4095|32768,0)}function W(e,t=511){return ke(e,t&1023|16384,0)}function Oe(e,t,r){typeof r>"u"&&(r=t,t=438),ke(e,t|8192,r)}function nt(e,t){if(!wr(e))throw new f(44);var r=U(t,{parent:!0}).node;if(!r)throw new f(44);t=Se(t);var n=kt(r,t);if(n)throw new f(n);if(!r.La.wb)throw new f(63);r.La.wb(r,t,e)}function Pt(e){var t=U(e,{parent:!0}).node;e=Se(e);var r=re(t,e),n=Ot(t,e,!0);if(n)throw new f(n);if(!t.La.vb)throw new f(63);if(r.ib)throw new f(10);t.La.vb(t,e),et(r)}function Dt(e){var t=U(e,{parent:!0}).node;if(!t)throw new f(44);e=Se(e);var r=re(t,e),n=Ot(t,e,!1);if(n)throw new f(n);if(!t.La.xb)throw new f(63);if(r.ib)throw new f(10);t.La.xb(t,e),et(r)}function _e(e,t){return e=U(e,{hb:!t}).node,Me(e.La.Wa)(e)}function It(e,t,r,n){tt(e,t,{mode:r&4095|t.mode&-4096,Ta:Date.now(),dc:n})}function Le(e,t){e=typeof e=="string"?U(e,{hb:!0}).node:e,It(null,e,t)}function Ut(e,t,r){if(L(t.mode))throw new f(31);if((t.mode&61440)!==32768)throw new f(28);var n=he(t,"w");if(n)throw new f(n);tt(e,t,{size:r,timestamp:Date.now()})}function be(e,t,r=438){if(e==="")throw new f(44);if(typeof t=="string"){var n={r:0,"r+":2,w:577,"w+":578,a:1089,"a+":1090}[t];if(typeof n>"u")throw Error(`Unknown file open mode: ${t}`);t=n}if(r=t&64?r&4095|32768:0,typeof e=="object")n=e;else{var i=e.endsWith("/"),a=U(e,{hb:!(t&131072),sc:!0});n=a.node,e=a.path}if(a=!1,t&64)if(n){if(t&128)throw new f(20)}else{if(i)throw new f(31);n=ke(e,r|511,0),a=!0}if(!n)throw new f(44);if((n.mode&61440)===8192&&(t&=-513),t&65536&&!L(n.mode))throw new f(54);if(!a&&(n?(n.mode&61440)===40960?i=32:(i=["r","w","rw"][t&3],t&512&&(i+="w"),i=L(n.mode)&&(i!=="r"||t&576)?31:he(n,i)):i=44,i))throw new f(i);return t&512&&!a&&(i=n,i=typeof i=="string"?U(i,{hb:!0}).node:i,Ut(null,i,0)),t=Lt({node:n,path:Ge(n),flags:t&-131713,seekable:!0,position:0,Ma:n.Ma,uc:[],error:!1}),t.Ma.open&&t.Ma.open(t),a&&Le(n,r&511),t}function it(e){if(e.bb===null)throw new f(8);e.Eb&&(e.Eb=null);try{e.Ma.close&&e.Ma.close(e)}catch(t){throw t}finally{ce[e.bb]=null}e.bb=null}function zt(e,t,r){if(e.bb===null)throw new f(8);if(!e.seekable||!e.Ma.Ya)throw new f(70);if(r!=0&&r!=1&&r!=2)throw new f(28);e.position=e.Ma.Ya(e,t,r),e.uc=[]}function Jt(e,t,r,n,i){if(0>n||0>i)throw new f(28);if(e.bb===null)throw new f(8);if((e.flags&2097155)===1)throw new f(8);if(L(e.node.mode))throw new f(31);if(!e.Ma.read)throw new f(28);var a=typeof i<"u";if(!a)i=e.position;else if(!e.seekable)throw new f(70);return t=e.Ma.read(e,t,r,n,i),a||(e.position+=t),t}function Ct(e,t,r,n,i){if(0>n||0>i)throw new f(28);if(e.bb===null)throw new f(8);if(!(e.flags&2097155))throw new f(8);if(L(e.node.mode))throw new f(31);if(!e.Ma.write)throw new f(28);e.seekable&&e.flags&1024&&zt(e,0,2);var a=typeof i<"u";if(!a)i=e.position;else if(!e.seekable)throw new f(70);return t=e.Ma.write(e,t,r,n,i,void 0),a||(e.position+=t),t}function Rr(e){var t=t||0;t=be(e,t),e=_e(e).size;var r=new Uint8Array(e);return Jt(t,r,0,e,0),it(t),r}function V(e,t,r){e=Ye("/dev/"+e);var n=Rt(!!t,!!r);V.Rb??(V.Rb=64);var i=V.Rb++<<8|0;rt(i,{open(a){a.seekable=!1},close(){var a;(a=r==null?void 0:r.buffer)!=null&&a.length&&r(10)},read(a,u,d,g){for(var m=0,x=0;x<g;x++){try{var M=t()}catch{throw new f(29)}if(M===void 0&&m===0)throw new f(6);if(M==null)break;m++,u[d+x]=M}return m&&(a.node.$a=Date.now()),m},write(a,u,d,g){for(var m=0;m<g;m++)try{r(u[d+m])}catch{throw new f(29)}return g&&(a.node.Ua=a.node.Ta=Date.now()),m}}),Oe(e,n,i)}var E={};function ne(e,t,r){if(t.charAt(0)==="/")return t;if(e=e===-100?"/":O(e).path,t.length==0){if(!r)throw new f(44);return e}return e+"/"+t}function je(e,t){_[e>>2]=t.cc,_[e+4>>2]=t.mode,_[e+8>>2]=t.rc,_[e+12>>2]=t.uid,_[e+16>>2]=t.nc,_[e+20>>2]=t.nb,J[e+24>>3]=BigInt(t.size),A[e+32>>2]=4096,A[e+36>>2]=t.$b;var r=t.$a.getTime(),n=t.Ua.getTime(),i=t.Ta.getTime();return J[e+40>>3]=BigInt(Math.floor(r/1e3)),_[e+48>>2]=r%1e3*1e6,J[e+56>>3]=BigInt(Math.floor(n/1e3)),_[e+64>>2]=n%1e3*1e6,J[e+72>>3]=BigInt(Math.floor(i/1e3)),_[e+80>>2]=i%1e3*1e6,J[e+88>>3]=BigInt(t.oc),0}var Pe=void 0,De=()=>{var e=A[+Pe>>2];return Pe+=4,e},ot=0,Tr=[0,31,60,91,121,152,182,213,244,274,305,335],Sr=[0,31,59,90,120,151,181,212,243,273,304,334],Ee={},Ft=e=>{if(!(e instanceof dt||e=="unwind"))throw e},Qt=e=>{var t;throw We=e,Te||0<ot||((t=s.onExit)==null||t.call(s,e),Re=!0),new dt(e)},qr=e=>{if(!Re)try{e()}catch(t){Ft(t)}finally{if(!(Te||0<ot))try{We=e=We,Qt(e)}catch(t){Ft(t)}}},at={},Bt=()=>{var n;if(!st){var e={USER:"web_user",LOGNAME:"web_user",PATH:"/",PWD:"/",HOME:"/home/web_user",LANG:(((n=globalThis.navigator)==null?void 0:n.language)??"C").replace("-","_")+".UTF-8",_:I||"./this.program"},t;for(t in at)at[t]===void 0?delete e[t]:e[t]=at[t];var r=[];for(t in e)r.push(`${t}=${e[t]}`);st=r}return st},st,Mr=(e,t,r,n)=>{var i={string:m=>{var x=0;if(m!=null&&m!==0){x=fe(m)+1;var M=oe(x);B(m,k,M,x),x=M}return x},array:m=>{var x=oe(m.length);return T.set(m,x),x}};e=s["_"+e];var a=[],u=0;if(n)for(var d=0;d<n.length;d++){var g=i[r[d]];g?(u===0&&(u=Je()),a[d]=g(n[d])):a[d]=n[d]}return r=e(...a),r=function(m){return u!==0&&ze(u),t==="string"?N(m):t==="boolean"?!!m:m}(r)},Ie=e=>{var t=fe(e)+1,r=Ue(t);return r&&B(e,k,r,t),r},ie,ut=[],Y=e=>{ie.delete(K.get(e)),K.set(e,null),ut.push(e)},Wt=e=>{const t=e.length;return[t%128|128,t>>7,...e]},kr={i:127,p:127,j:126,f:125,d:124,e:111},$t=e=>Wt(Array.from(e,t=>kr[t])),xe=(e,t)=>{if(!ie){ie=new WeakMap;var r=K.length;if(ie)for(var n=0;n<0+r;n++){var i=K.get(n);i&&ie.set(i,n)}}if(r=ie.get(e)||0)return r;r=ut.length?ut.pop():K.grow(1);try{K.set(r,e)}catch(a){if(!(a instanceof TypeError))throw a;t=Uint8Array.of(0,97,115,109,1,0,0,0,1,...Wt([1,96,...$t(t.slice(1)),...$t(t[0]==="v"?"":t[0])]),2,7,1,1,101,1,102,0,0,7,5,1,1,102,0,0),t=new WebAssembly.Module(t),t=new WebAssembly.Instance(t,{e:{f:e}}).exports.f,K.set(r,t)}return ie.set(e,r),r};if(X=Array(4096),jt(w,"/"),W("/tmp"),W("/home"),W("/home/web_user"),function(){W("/dev"),rt(259,{read:()=>0,write:(n,i,a,u)=>u,Ya:()=>0}),Oe("/dev/null",259),Nt(1280,yr),Nt(1536,vr),Oe("/dev/tty",1280),Oe("/dev/tty1",1536);var e=new Uint8Array(1024),t=0,r=()=>(t===0&&(xt(e),t=e.byteLength),e[--t]);V("random",r),V("urandom",r),W("/dev/shm"),W("/dev/shm/tmp")}(),function(){W("/proc");var e=W("/proc/self");W("/proc/self/fd"),jt({ab(){var t=Mt(e,"fd",16895,73);return t.Ma={Ya:w.Ma.Ya},t.La={mb(r,n){r=+n;var i=O(r);return r={parent:null,ab:{Sb:"fake"},La:{eb:()=>i.path},id:r+1},r.parent=r},Ib(){return Array.from(ce.entries()).filter(([,r])=>r).map(([r])=>r.toString())}},t}},"/proc/self/fd")}(),s.noExitRuntime&&(Te=s.noExitRuntime),s.print&&(Be=s.print),s.printErr&&(ee=s.printErr),s.wasmBinary&&(we=s.wasmBinary),s.thisProgram&&(I=s.thisProgram),s.preInit)for(typeof s.preInit=="function"&&(s.preInit=[s.preInit]);0<s.preInit.length;)s.preInit.shift()();s.stackSave=()=>Je(),s.stackRestore=e=>ze(e),s.stackAlloc=e=>oe(e),s.cwrap=(e,t,r,n)=>{var i=!r||r.every(a=>a==="number"||a==="boolean");return t!=="string"&&i&&!n?s["_"+e]:(...a)=>Mr(e,t,r,a)},s.addFunction=xe,s.removeFunction=Y,s.UTF8ToString=N,s.stringToNewUTF8=Ie,s.writeArrayToMemory=(e,t)=>{T.set(e,t)};var Ue,Ae,Xt,Vt,ze,oe,Je,Ce,K,Or={a:(e,t,r,n)=>ye(`Assertion failed: ${N(e)}, at: `+[t?N(t):"unknown filename",r,n?N(n):"unknown function"]),i:function(e,t){try{return e=N(e),Le(e,t),0}catch(r){if(typeof E>"u"||r.name!=="ErrnoError")throw r;return-r.Pa}},L:function(e,t,r){try{if(t=N(t),t=ne(e,t),r&-8)return-28;var n=U(t,{hb:!0}).node;return n?(e="",r&4&&(e+="r"),r&2&&(e+="w"),r&1&&(e+="x"),e&&he(n,e)?-2:0):-44}catch(i){if(typeof E>"u"||i.name!=="ErrnoError")throw i;return-i.Pa}},j:function(e,t){try{var r=O(e);return It(r,r.node,t,!1),0}catch(n){if(typeof E>"u"||n.name!=="ErrnoError")throw n;return-n.Pa}},h:function(e){try{var t=O(e);return tt(t,t.node,{timestamp:Date.now(),dc:!1}),0}catch(r){if(typeof E>"u"||r.name!=="ErrnoError")throw r;return-r.Pa}},b:function(e,t,r){Pe=r;try{var n=O(e);switch(t){case 0:var i=De();if(0>i)break;for(;ce[i];)i++;return xr(n,i).bb;case 1:case 2:return 0;case 3:return n.flags;case 4:return i=De(),n.flags|=i,0;case 12:return i=De(),me[i+0>>1]=2,0;case 13:case 14:return 0}return-28}catch(a){if(typeof E>"u"||a.name!=="ErrnoError")throw a;return-a.Pa}},g:function(e,t){try{var r=O(e),n=r.node,i=r.Ma.Wa;e=i?r:n,i??(i=n.La.Wa),Me(i);var a=i(e);return je(t,a)}catch(u){if(typeof E>"u"||u.name!=="ErrnoError")throw u;return-u.Pa}},H:function(e,t){t=-9007199254740992>t||9007199254740992<t?NaN:Number(t);try{if(isNaN(t))return-61;var r=O(e);if(0>t||!(r.flags&2097155))throw new f(28);return Ut(r,r.node,t),0}catch(n){if(typeof E>"u"||n.name!=="ErrnoError")throw n;return-n.Pa}},G:function(e,t){try{if(t===0)return-28;var r=fe("/")+1;return t<r?-68:(B("/",k,e,t),r)}catch(n){if(typeof E>"u"||n.name!=="ErrnoError")throw n;return-n.Pa}},K:function(e,t){try{return e=N(e),je(t,_e(e,!0))}catch(r){if(typeof E>"u"||r.name!=="ErrnoError")throw r;return-r.Pa}},C:function(e,t,r){try{return t=N(t),t=ne(e,t),W(t,r),0}catch(n){if(typeof E>"u"||n.name!=="ErrnoError")throw n;return-n.Pa}},J:function(e,t,r,n){try{t=N(t);var i=n&256;return t=ne(e,t,n&4096),je(r,i?_e(t,!0):_e(t))}catch(a){if(typeof E>"u"||a.name!=="ErrnoError")throw a;return-a.Pa}},x:function(e,t,r,n){Pe=n;try{t=N(t),t=ne(e,t);var i=n?De():0;return be(t,r,i).bb}catch(a){if(typeof E>"u"||a.name!=="ErrnoError")throw a;return-a.Pa}},v:function(e,t,r,n){try{if(t=N(t),t=ne(e,t),0>=n)return-28;var i=U(t).node;if(!i)throw new f(44);if(!i.La.eb)throw new f(28);var a=i.La.eb(i),u=Math.min(n,fe(a)),d=T[r+u];return B(a,k,r,n+1),T[r+u]=d,u}catch(g){if(typeof E>"u"||g.name!=="ErrnoError")throw g;return-g.Pa}},u:function(e){try{return e=N(e),Pt(e),0}catch(t){if(typeof E>"u"||t.name!=="ErrnoError")throw t;return-t.Pa}},f:function(e,t){try{return e=N(e),je(t,_e(e))}catch(r){if(typeof E>"u"||r.name!=="ErrnoError")throw r;return-r.Pa}},r:function(e,t,r){try{if(t=N(t),t=ne(e,t),r)if(r===512)Pt(t);else return-28;else Dt(t);return 0}catch(n){if(typeof E>"u"||n.name!=="ErrnoError")throw n;return-n.Pa}},q:function(e,t,r){try{t=N(t),t=ne(e,t,!0);var n=Date.now(),i,a;if(r){var u=_[r>>2]+4294967296*A[r+4>>2],d=A[r+8>>2];d==1073741823?i=n:d==1073741822?i=null:i=1e3*u+d/1e6,r+=16,u=_[r>>2]+4294967296*A[r+4>>2],d=A[r+8>>2],d==1073741823?a=n:d==1073741822?a=null:a=1e3*u+d/1e6}else a=i=n;if((a??i)!==null){e=i;var g=U(t,{hb:!0}).node;Me(g.La.Xa)(g,{$a:e,Ua:a})}return 0}catch(m){if(typeof E>"u"||m.name!=="ErrnoError")throw m;return-m.Pa}},m:()=>ye(""),l:()=>{Te=!1,ot=0},A:function(e,t){e=-9007199254740992>e||9007199254740992<e?NaN:Number(e),e=new Date(1e3*e),A[t>>2]=e.getSeconds(),A[t+4>>2]=e.getMinutes(),A[t+8>>2]=e.getHours(),A[t+12>>2]=e.getDate(),A[t+16>>2]=e.getMonth(),A[t+20>>2]=e.getFullYear()-1900,A[t+24>>2]=e.getDay();var r=e.getFullYear();A[t+28>>2]=(r%4!==0||r%100===0&&r%400!==0?Sr:Tr)[e.getMonth()]+e.getDate()-1|0,A[t+36>>2]=-(60*e.getTimezoneOffset()),r=new Date(e.getFullYear(),6,1).getTimezoneOffset();var n=new Date(e.getFullYear(),0,1).getTimezoneOffset();A[t+32>>2]=(r!=n&&e.getTimezoneOffset()==Math.min(n,r))|0},y:function(e,t,r,n,i,a,u){i=-9007199254740992>i||9007199254740992<i?NaN:Number(i);try{var d=O(n);if(t&2&&!(r&2)&&(d.flags&2097155)!==2)throw new f(2);if((d.flags&2097155)===1)throw new f(2);if(!d.Ma.sb)throw new f(43);if(!e)throw new f(28);var g=d.Ma.sb(d,e,i,t,r),m=g.tc;return A[a>>2]=g.Ub,_[u>>2]=m,0}catch(x){if(typeof E>"u"||x.name!=="ErrnoError")throw x;return-x.Pa}},z:function(e,t,r,n,i,a){a=-9007199254740992>a||9007199254740992<a?NaN:Number(a);try{var u=O(i);if(r&2){if((u.node.mode&61440)!==32768)throw new f(43);n&2||u.Ma.tb&&u.Ma.tb(u,k.slice(e,e+t),a,t,n)}}catch(d){if(typeof E>"u"||d.name!=="ErrnoError")throw d;return-d.Pa}},n:(e,t)=>{if(Ee[e]&&(clearTimeout(Ee[e].id),delete Ee[e]),!t)return 0;var r=setTimeout(()=>{delete Ee[e],qr(()=>Vt(e,performance.now()))},t);return Ee[e]={id:r,Hc:t},0},B:(e,t,r,n)=>{var i=new Date().getFullYear(),a=new Date(i,0,1).getTimezoneOffset();i=new Date(i,6,1).getTimezoneOffset(),_[e>>2]=60*Math.max(a,i),A[t>>2]=+(a!=i),t=u=>{var d=Math.abs(u);return`UTC${0<=u?"-":"+"}${String(Math.floor(d/60)).padStart(2,"0")}${String(d%60).padStart(2,"0")}`},e=t(a),t=t(i),i<a?(B(e,k,r,17),B(t,k,n,17)):(B(e,k,n,17),B(t,k,r,17))},d:()=>Date.now(),s:()=>2147483648,c:()=>performance.now(),o:e=>{var t=k.length;if(e>>>=0,2147483648<e)return!1;for(var r=1;4>=r;r*=2){var n=t*(1+.2/r);n=Math.min(n,e+100663296);e:{n=(Math.min(2147483648,65536*Math.ceil(Math.max(e,n)/65536))-Ce.buffer.byteLength+65535)/65536|0;try{Ce.grow(n),pt();var i=1;break e}catch{}i=void 0}if(i)return!0}return!1},E:(e,t)=>{var r=0,n=0,i;for(i of Bt()){var a=t+r;_[e+n>>2]=a,r+=B(i,k,a,1/0)+1,n+=4}return 0},F:(e,t)=>{var r=Bt();_[e>>2]=r.length,e=0;for(var n of r)e+=fe(n)+1;return _[t>>2]=e,0},e:function(e){try{var t=O(e);return it(t),0}catch(r){if(typeof E>"u"||r.name!=="ErrnoError")throw r;return r.Pa}},p:function(e,t){try{var r=O(e);return T[t]=r.Va?2:L(r.mode)?3:(r.mode&61440)===40960?7:4,me[t+2>>1]=0,J[t+8>>3]=BigInt(0),J[t+16>>3]=BigInt(0),0}catch(n){if(typeof E>"u"||n.name!=="ErrnoError")throw n;return n.Pa}},w:function(e,t,r,n){try{e:{var i=O(e);e=t;for(var a,u=t=0;u<r;u++){var d=_[e>>2],g=_[e+4>>2];e+=8;var m=Jt(i,T,d,g,a);if(0>m){var x=-1;break e}if(t+=m,m<g)break;typeof a<"u"&&(a+=m)}x=t}return _[n>>2]=x,0}catch(M){if(typeof E>"u"||M.name!=="ErrnoError")throw M;return M.Pa}},D:function(e,t,r,n){t=-9007199254740992>t||9007199254740992<t?NaN:Number(t);try{if(isNaN(t))return 61;var i=O(e);return zt(i,t,r),J[n>>3]=BigInt(i.position),i.Eb&&t===0&&r===0&&(i.Eb=null),0}catch(a){if(typeof E>"u"||a.name!=="ErrnoError")throw a;return a.Pa}},I:function(e){var r,n;try{var t=O(e);return(n=(r=t.Ma)==null?void 0:r.lb)==null?void 0:n.call(r,t)}catch(i){if(typeof E>"u"||i.name!=="ErrnoError")throw i;return i.Pa}},t:function(e,t,r,n){try{e:{var i=O(e);e=t;for(var a,u=t=0;u<r;u++){var d=_[e>>2],g=_[e+4>>2];e+=8;var m=Ct(i,T,d,g,a);if(0>m){var x=-1;break e}if(t+=m,m<g)break;typeof a<"u"&&(a+=m)}x=t}return _[n>>2]=x,0}catch(M){if(typeof E>"u"||M.name!=="ErrnoError")throw M;return M.Pa}},k:Qt};function lt(){function e(){var i;if(s.calledRun=!0,!Re){if(!s.noFSInit&&!St){var t,r;St=!0,t??(t=s.stdin),r??(r=s.stdout),n??(n=s.stderr),t?V("stdin",t):nt("/dev/tty","/dev/stdin"),r?V("stdout",null,r):nt("/dev/tty","/dev/stdout"),n?V("stderr",null,n):nt("/dev/tty1","/dev/stderr"),be("/dev/stdin",0),be("/dev/stdout",1),be("/dev/stderr",1)}if(ft.N(),qt=!1,(i=s.onRuntimeInitialized)==null||i.call(s),s.postRun)for(typeof s.postRun=="function"&&(s.postRun=[s.postRun]);s.postRun.length;){var n=s.postRun.shift();mt.push(n)}wt(mt)}}if(0<te)ve=lt;else{if(s.preRun)for(typeof s.preRun=="function"&&(s.preRun=[s.preRun]);s.preRun.length;)pr();wt(yt),0<te?ve=lt:s.setStatus?(s.setStatus("Running..."),setTimeout(()=>{setTimeout(()=>s.setStatus(""),1),e()},1)):e()}}var ft;return async function(){var r;function e(n){var i;return n=ft=n.exports,s._sqlite3_free=n.P,s._sqlite3_value_text=n.Q,s._sqlite3_prepare_v2=n.R,s._sqlite3_step=n.S,s._sqlite3_reset=n.T,s._sqlite3_exec=n.U,s._sqlite3_finalize=n.V,s._sqlite3_column_name=n.W,s._sqlite3_column_text=n.X,s._sqlite3_column_type=n.Y,s._sqlite3_errmsg=n.Z,s._sqlite3_clear_bindings=n._,s._sqlite3_value_blob=n.$,s._sqlite3_value_bytes=n.aa,s._sqlite3_value_double=n.ba,s._sqlite3_value_int=n.ca,s._sqlite3_value_type=n.da,s._sqlite3_result_blob=n.ea,s._sqlite3_result_double=n.fa,s._sqlite3_result_error=n.ga,s._sqlite3_result_int=n.ha,s._sqlite3_result_int64=n.ia,s._sqlite3_result_null=n.ja,s._sqlite3_result_text=n.ka,s._sqlite3_aggregate_context=n.la,s._sqlite3_column_count=n.ma,s._sqlite3_data_count=n.na,s._sqlite3_column_blob=n.oa,s._sqlite3_column_bytes=n.pa,s._sqlite3_column_double=n.qa,s._sqlite3_bind_blob=n.ra,s._sqlite3_bind_double=n.sa,s._sqlite3_bind_int=n.ta,s._sqlite3_bind_text=n.ua,s._sqlite3_bind_parameter_index=n.va,s._sqlite3_sql=n.wa,s._sqlite3_normalized_sql=n.xa,s._sqlite3_changes=n.ya,s._sqlite3_close_v2=n.za,s._sqlite3_create_function_v2=n.Aa,s._sqlite3_update_hook=n.Ba,s._sqlite3_open=n.Ca,Ue=s._malloc=n.Da,Ae=s._free=n.Ea,s._RegisterExtensionFunctions=n.Fa,Xt=n.Ga,Vt=n.Ha,ze=n.Ia,oe=n.Ja,Je=n.Ka,Ce=n.M,K=n.O,pt(),te--,(i=s.monitorRunDependencies)==null||i.call(s,te),te==0&&ve&&(n=ve,ve=null,n()),ft}te++,(r=s.monitorRunDependencies)==null||r.call(s,te);var t={a:Or};return s.instantiateWasm?new Promise(n=>{s.instantiateWasm(t,(i,a)=>{n(e(i))})}):(Ve??(Ve=s.locateFile?s.locateFile("sql-wasm-browser.wasm",de):de+"sql-wasm-browser.wasm"),e((await br(t)).instance))}(),lt(),D}),p)};q.exports=S,q.exports.default=S})(Q);var se=Q.exports;const ar=G(se),sr=`
+CREATE TABLE IF NOT EXISTS jobs (
+  id TEXT PRIMARY KEY,
+  company TEXT,
+  title TEXT,
+  role_id TEXT,
+  location TEXT,
+  saved_date TEXT,
+  cleaned_text TEXT,
+  raw_text TEXT,
+  source TEXT
+);
+CREATE TABLE IF NOT EXISTS config (
+  key TEXT PRIMARY KEY,
+  value TEXT
+);
+`;class ur{constructor(){this.db=null,this.dbPath=null,this.SQL=null}async init(){const c=await Neutralino.os.getPath("data"),p=await Neutralino.filesystem.getJoinedPath(c,"job-tracker");await this.ensureDirectory(p),this.dbPath=await Neutralino.filesystem.getJoinedPath(p,"jobs.db"),this.SQL=await ar({locateFile:()=>"./js/sql-wasm.wasm"});try{const S=await Neutralino.filesystem.readBinaryFile(this.dbPath);this.db=new this.SQL.Database(new Uint8Array(S))}catch{this.db=new this.SQL.Database}this.db.run(sr),await this.migrateFromStorage(),await this.persist()}async ensureDirectory(c){try{if(!(await Neutralino.filesystem.getStats(c)).isDirectory)throw new Error("path exists but is not a directory")}catch{await Neutralino.filesystem.createDirectory(c)}}async persist(){const c=this.db.export();await Neutralino.filesystem.writeBinaryFile(this.dbPath,c.buffer)}async migrateFromStorage(){if(this.getConfigValue("storage_migrated")!=="true"){try{const c=await Neutralino.storage.getData("jobs");if(c){const p=JSON.parse(c);for(const S of p)this.insertJob(S,!1);await Neutralino.storage.removeData("jobs")}}catch(c){if(c.code!=="NE_ST_NOSTKEX")throw c}try{const c=await Neutralino.storage.getData("config");if(c){const p=JSON.parse(c);p.openRouterApiKey&&this.setConfigValue("openRouterApiKey",p.openRouterApiKey),await Neutralino.storage.removeData("config")}}catch(c){if(c.code!=="NE_ST_NOSTKEX")throw c}this.setConfigValue("storage_migrated","true")}}getAllJobs(){const c=this.db.prepare("SELECT * FROM jobs ORDER BY saved_date DESC"),p=[];for(;c.step();)p.push(c.getAsObject());return c.free(),p}getJob(c){const p=this.db.prepare("SELECT * FROM jobs WHERE id = ?");p.bind([c]);const S=p.step()?p.getAsObject():null;return p.free(),S}insertJob(c,p=!0){if(this.db.run(`INSERT OR REPLACE INTO jobs
+        (id, company, title, role_id, location, saved_date, cleaned_text, raw_text, source)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,[c.id,c.company||"",c.title||"",c.role_id||"",c.location||"",c.saved_date,c.cleaned_text||"",c.raw_text||"",c.source||"none"]),p)return this.persist()}async deleteJob(c){this.db.run("DELETE FROM jobs WHERE id = ?",[c]),await this.persist()}getConfig(){return{openRouterApiKey:this.getConfigValue("openRouterApiKey")||""}}getConfigValue(c){const p=this.db.prepare("SELECT value FROM config WHERE key = ?");p.bind([c]);const S=p.step()?p.getAsObject().value:null;return p.free(),S}setConfigValue(c,p){this.db.run("INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)",[c,p])}async saveConfig(c){c.openRouterApiKey!==void 0&&this.setConfigValue("openRouterApiKey",c.openRouterApiKey),await this.persist()}}async function ht(q,c,p,S){var j,H,D;const R={company:c||"",title:p||"",location:"",role_id:"",cleaned_text:q};if(!S)return R;try{const s=await(await fetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers:{Authorization:`Bearer ${S}`,"Content-Type":"application/json","HTTP-Referer":window.location.href,"X-Title":"Job Tracker"},body:JSON.stringify({model:"anthropic/claude-3-haiku",messages:[{role:"user",content:`Extract and clean the following job posting. Return ONLY a JSON object with these exact keys:
 - company: the company name
 - title: the job title
 - location: the location (city, state, or remote)
@@ -93,201 +34,10 @@ For cleaned_text, organize the description into these standard sections (use the
 If a section doesn't have information, omit it. Use consistent formatting with proper spacing between sections.
 
 Job posting:
-${rawText}
+${q}
 
-Return ONLY the JSON, no other text.`
-                }
-              ],
-              max_tokens: 4000,
-              temperature: 0.1
-            })
-          });
-          
-          const data = await response.json();
-          console.log('openrouter response:', data);
-          
-          if (data.choices && data.choices[0] && data.choices[0].message) {
-            const content = data.choices[0].message.content;
-            console.log('ai response content:', content);
-            
-            // parse the json response
-            const jsonMatch = content.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-              const aiResult = JSON.parse(jsonMatch[0]);
-              
-              // convert cleaned_text object to formatted string if it's an object
-              let formattedText = rawText;
-              if (aiResult.cleaned_text && typeof aiResult.cleaned_text === 'object') {
-                formattedText = Object.entries(aiResult.cleaned_text)
-                  .map(([section, content]) => `${section}\n\n${content}`)
-                  .join('\n\n');
-              } else if (aiResult.cleaned_text) {
-                formattedText = aiResult.cleaned_text;
-              }
-              
-              cleanedData = {
-                company: aiResult.company || company || '',
-                title: aiResult.title || title || '',
-                location: aiResult.location || '',
-                role_id: aiResult.role_id || '',
-                cleaned_text: formattedText
-              };
-              console.log('cleaned data:', cleanedData);
-            }
-          }
-        } catch (aiError) {
-          console.error('ai cleaning failed:', aiError);
-          // fall back to using provided values or raw text
-        }
-      }
-      
-      let jobsData;
-      try {
-        jobsData = await Neutralino.storage.getData('jobs');
-      } catch (error) {
-        if (error.code === 'NE_ST_NOSTKEX') {
-          jobsData = null;
-        } else {
-          throw error;
-        }
-      }
-      console.log('got jobsdata:', jobsData);
-      
-      const jobs = jobsData ? JSON.parse(jobsData) : [];
-      console.log('parsed jobs:', jobs);
-      
-      // simple uuid generator
-      const generateId = () => {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-          var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-          return v.toString(16);
-        });
-      };
-      
-      const newJob = {
-        company: cleanedData.company,
-        title: cleanedData.title,
-        location: cleanedData.location,
-        role_id: cleanedData.role_id,
-        raw_text: rawText,
-        cleaned_text: cleanedData.cleaned_text,
-        id: generateId(),
-        saved_date: new Date().toISOString(),
-        source: apiKey ? 'openrouter' : 'none'
-      };
-      
-      console.log('created newjob:', newJob);
-      
-      jobs.push(newJob);
-      await Neutralino.storage.setData('jobs', JSON.stringify(jobs));
-      console.log('saved jobs to storage');
-      
-      return { success: true, job: newJob };
-    } catch (error) {
-      console.error('error saving job:', error);
-      console.error('error details:', error.message, error.stack);
-      return { success: false, error: error.message };
-    }
-  }
+Return ONLY the JSON, no other text.`}],max_tokens:4e3,temperature:.1})})).json();if(!((D=(H=(j=s.choices)==null?void 0:j[0])==null?void 0:H.message)!=null&&D.content))return R;const ue=s.choices[0].message.content.match(/\{[\s\S]*\}/);if(!ue)return R;const I=JSON.parse(ue[0]);let le=q;return I.cleaned_text&&typeof I.cleaned_text=="object"?le=Object.entries(I.cleaned_text).map(([de,Ne])=>`${de}
 
-  async getJob(id) {
-    await this.waitReady();
-    try {
-      const jobsData = await Neutralino.storage.getData('jobs');
-      const jobs = jobsData ? JSON.parse(jobsData) : [];
-      const job = jobs.find(j => j.id === id);
-      return { success: true, job: job || null };
-    } catch (error) {
-      console.error('error getting job:', error);
-      return { success: false, error: error.message };
-    }
-  }
+${Ne}`).join(`
 
-  async deleteJob(id) {
-    await this.waitReady();
-    try {
-      const jobsData = await Neutralino.storage.getData('jobs');
-      const jobs = jobsData ? JSON.parse(jobsData) : [];
-      const filteredJobs = jobs.filter(j => j.id !== id);
-      await Neutralino.storage.setData('jobs', JSON.stringify(filteredJobs));
-      return { success: true };
-    } catch (error) {
-      console.error('error deleting job:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  async reprocessJob(id) {
-    await this.waitReady();
-    try {
-      const jobsData = await Neutralino.storage.getData('jobs');
-      const jobs = jobsData ? JSON.parse(jobsData) : [];
-      const jobIndex = jobs.findIndex(j => j.id === id);
-      
-      if (jobIndex === -1) {
-        return { success: false, error: 'job not found' };
-      }
-      
-      // for now, just return the job as-is (ai processing would need backend)
-      const job = jobs[jobIndex];
-      return { success: true, job: job };
-    } catch (error) {
-      console.error('error reprocessing job:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  async getConfig() {
-    await this.waitReady();
-    try {
-      const data = await Neutralino.storage.getData('config');
-      return { success: true, config: data ? JSON.parse(data) : { openRouterApiKey: '' } };
-    } catch (error) {
-      console.error('error getting config:', error);
-      return { success: true, config: { openRouterApiKey: '' } };
-    }
-  }
-
-  async saveConfig(config) {
-    await this.waitReady();
-    try {
-      await Neutralino.storage.setData('config', JSON.stringify(config));
-      return { success: true };
-    } catch (error) {
-      console.error('error saving config:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  async closeWindow() {
-    await this.waitReady();
-    try {
-      await Neutralino.app.exit();
-    } catch (error) {
-      console.error('error closing window:', error);
-    }
-  }
-
-  async minimizeWindow() {
-    await this.waitReady();
-    try {
-      await Neutralino.window.minimize();
-    } catch (error) {
-      console.error('error minimizing window:', error);
-    }
-  }
-
-  async maximizeWindow() {
-    await this.waitReady();
-    try {
-      await Neutralino.window.maximize();
-    } catch (error) {
-      console.error('error maximizing window:', error);
-    }
-  }
-}
-
-// initialize api when neutralino is ready
-console.log('creating window.electronapi instance...');
-window.electronAPI = new NeutralinoAPI();
-console.log('window.electronapi set:', window.electronAPI);
+`):I.cleaned_text&&(le=I.cleaned_text),{company:I.company||c||"",title:I.title||p||"",location:I.location||"",role_id:I.role_id||"",cleaned_text:le}}catch(pe){return console.error("AI cleaning failed:",pe),R}}function lr(){return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,q=>{const c=Math.random()*16|0;return(q==="x"?c:c&3|8).toString(16)})}class fr{constructor(){this.ready=!1,this.database=new ur}async waitReady(){this.ready||(await Neutralino.init(),await this.database.init(),this.ready=!0)}async getAllJobs(){await this.waitReady();try{return{success:!0,jobs:this.database.getAllJobs()}}catch(c){return console.error("Error getting jobs:",c),{success:!1,error:c.message}}}async saveJob(c,p,S){await this.waitReady();try{const R=this.database.getConfig(),j=await ht(c,p,S,R.openRouterApiKey),H={id:lr(),company:j.company,title:j.title,location:j.location,role_id:j.role_id,raw_text:c,cleaned_text:j.cleaned_text,saved_date:new Date().toISOString(),source:R.openRouterApiKey?"openrouter":"none"};return await this.database.insertJob(H),{success:!0,job:H}}catch(R){return console.error("Error saving job:",R),{success:!1,error:R.message}}}async getJob(c){await this.waitReady();try{return{success:!0,job:this.database.getJob(c)}}catch(p){return console.error("Error getting job:",p),{success:!1,error:p.message}}}async deleteJob(c){await this.waitReady();try{return await this.database.deleteJob(c),{success:!0}}catch(p){return console.error("Error deleting job:",p),{success:!1,error:p.message}}}async reprocessJob(c){await this.waitReady();try{const p=this.database.getJob(c);if(!p)return{success:!1,error:"Job not found"};const S=this.database.getConfig(),R=await ht(p.raw_text,p.company,p.title,S.openRouterApiKey),j={...p,company:R.company,title:R.title,location:R.location,role_id:R.role_id,cleaned_text:R.cleaned_text,source:S.openRouterApiKey?"openrouter":"none"};return await this.database.insertJob(j),{success:!0,job:j}}catch(p){return console.error("Error reprocessing job:",p),{success:!1,error:p.message}}}async getConfig(){await this.waitReady();try{return{success:!0,config:this.database.getConfig()}}catch(c){return console.error("Error getting config:",c),{success:!1,error:c.message}}}async saveConfig(c){await this.waitReady();try{return await this.database.saveConfig(c),{success:!0}}catch(p){return console.error("Error saving config:",p),{success:!1,error:p.message}}}async closeWindow(){await this.waitReady();try{await Neutralino.app.exit()}catch(c){console.error("Error closing window:",c)}}async minimizeWindow(){await this.waitReady();try{await Neutralino.window.minimize()}catch(c){console.error("Error minimizing window:",c)}}async maximizeWindow(){await this.waitReady();try{await Neutralino.window.maximize()}catch(c){console.error("Error maximizing window:",c)}}}window.electronAPI=new fr})();

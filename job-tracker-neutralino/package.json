@@ -1,0 +1,21 @@
+{
+  "name": "job-tracker-neutralino",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && vite build --config vite.api.config.js",
+    "build:api": "vite build --config vite.api.config.js",
+    "postinstall": "node scripts/copy-sql-wasm.js",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sql.js": "^1.12.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.0"
+  }
+}

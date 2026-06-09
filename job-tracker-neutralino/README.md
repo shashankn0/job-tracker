@@ -6,7 +6,7 @@ A desktop application built with Neutralino and React for tracking job applicati
 
 - **AI-Powered Cleaning**: Automatically extracts company name, job title, location, and role ID from job descriptions
 - **Clean Formatting**: Organizes job descriptions into standardized sections (About the Company, Position Overview, Responsibilities, Qualifications, Additional Information)
-- **Local Storage**: Stores job data locally using Neutralino's storage API
+- **SQLite Database**: Stores job data locally in a SQLite database file
 - **Dark Mode UI**: Modern dark theme with clean, organized interface
 
 ## Prerequisites
@@ -51,6 +51,7 @@ neu run
 
 To build the application for distribution:
 ```bash
+npm run build
 neu build
 ```
 
@@ -61,7 +62,7 @@ The built application will be in the `dist/Job Tracker/` directory.
 - **Frontend**: React, TailwindCSS
 - **Desktop Framework**: Neutralino
 - **AI**: OpenRouter API with Claude 3 Haiku
-- **Storage**: Neutralino Storage API
+- **Storage**: SQLite via sql.js, persisted with Neutralino filesystem API
 
 ## License
 
