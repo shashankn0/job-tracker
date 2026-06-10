@@ -1,28 +1,13 @@
-import initSqlJs from 'sql.js'
+import { ExtensionBackend } from './extension-backend.js'
+import { SqlJsBackend } from './sqljs-backend.js'
 
-const SCHEMA = `
-CREATE TABLE IF NOT EXISTS jobs (
-  id TEXT PRIMARY KEY,
-  company TEXT,
-  title TEXT,
-  role_id TEXT,
-  location TEXT,
-  saved_date TEXT,
-  cleaned_text TEXT,
-  raw_text TEXT,
-  source TEXT
-);
-CREATE TABLE IF NOT EXISTS config (
-  key TEXT PRIMARY KEY,
-  value TEXT
-);
-`
+const CONFIG_STORAGE_KEY = 'config'
 
 export class JobDatabase {
   constructor() {
-    this.db = null
+    this.backend = null
+    this.backendType = null
     this.dbPath = null
-    this.SQL = null
   }
 
   async init() {
@@ -31,20 +16,21 @@ export class JobDatabase {
     await this.ensureDirectory(dbDir)
     this.dbPath = await Neutralino.filesystem.getJoinedPath(dbDir, 'jobs.db')
 
-    this.SQL = await initSqlJs({
-      locateFile: () => './js/sql-wasm.wasm',
-    })
-
+    const extensionBackend = new ExtensionBackend()
     try {
-      const buffer = await Neutralino.filesystem.readBinaryFile(this.dbPath)
-      this.db = new this.SQL.Database(new Uint8Array(buffer))
-    } catch {
-      this.db = new this.SQL.Database()
+      await extensionBackend.init()
+      this.backend = extensionBackend
+      this.backendType = 'extension'
+      console.log('Using native SQLite extension')
+    } catch (error) {
+      console.warn('SQLite extension unavailable, using sql.js fallback:', error.message)
+      const sqlJsBackend = new SqlJsBackend()
+      await sqlJsBackend.init(this.dbPath)
+      this.backend = sqlJsBackend
+      this.backendType = 'sqljs'
     }
 
-    this.db.run(SCHEMA)
     await this.migrateFromStorage()
-    await this.persist()
   }
 
   async ensureDirectory(path) {
@@ -58,13 +44,17 @@ export class JobDatabase {
     }
   }
 
-  async persist() {
-    const data = this.db.export()
-    await Neutralino.filesystem.writeBinaryFile(this.dbPath, data.buffer)
+  getDbPath() {
+    return this.dbPath
+  }
+
+  getBackendType() {
+    return this.backendType
   }
 
   async migrateFromStorage() {
-    if (this.getConfigValue('storage_migrated') === 'true') {
+    const migrated = await this.getConfigValue('storage_migrated')
+    if (migrated === 'true') {
       return
     }
 
@@ -73,7 +63,7 @@ export class JobDatabase {
       if (jobsData) {
         const jobs = JSON.parse(jobsData)
         for (const job of jobs) {
-          this.insertJob(job, false)
+          await this.insertJob(job)
         }
         await Neutralino.storage.removeData('jobs')
       }
@@ -84,13 +74,13 @@ export class JobDatabase {
     }
 
     try {
-      const configData = await Neutralino.storage.getData('config')
+      const configData = await Neutralino.storage.getData(CONFIG_STORAGE_KEY)
       if (configData) {
         const config = JSON.parse(configData)
         if (config.openRouterApiKey) {
-          this.setConfigValue('openRouterApiKey', config.openRouterApiKey)
+          await this.setConfigValue('openRouterApiKey', config.openRouterApiKey)
         }
-        await Neutralino.storage.removeData('config')
+        await Neutralino.storage.removeData(CONFIG_STORAGE_KEY)
       }
     } catch (error) {
       if (error.code !== 'NE_ST_NOSTKEX') {
@@ -98,74 +88,74 @@ export class JobDatabase {
       }
     }
 
-    this.setConfigValue('storage_migrated', 'true')
+    await this.setConfigValue('storage_migrated', 'true')
   }
 
-  getAllJobs() {
-    const stmt = this.db.prepare('SELECT * FROM jobs ORDER BY saved_date DESC')
-    const jobs = []
-    while (stmt.step()) {
-      jobs.push(stmt.getAsObject())
-    }
-    stmt.free()
-    return jobs
+  async getAllJobs() {
+    return this.backend.getAllJobs()
   }
 
-  getJob(id) {
-    const stmt = this.db.prepare('SELECT * FROM jobs WHERE id = ?')
-    stmt.bind([id])
-    const job = stmt.step() ? stmt.getAsObject() : null
-    stmt.free()
-    return job
+  async getJob(id) {
+    return this.backend.getJob(id)
   }
 
-  insertJob(job, shouldPersist = true) {
-    this.db.run(
-      `INSERT OR REPLACE INTO jobs
-        (id, company, title, role_id, location, saved_date, cleaned_text, raw_text, source)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        job.id,
-        job.company || '',
-        job.title || '',
-        job.role_id || '',
-        job.location || '',
-        job.saved_date,
-        job.cleaned_text || '',
-        job.raw_text || '',
-        job.source || 'none',
-      ],
-    )
-    if (shouldPersist) {
-      return this.persist()
-    }
+  async insertJob(job) {
+    await this.backend.insertJob(job)
   }
 
   async deleteJob(id) {
-    this.db.run('DELETE FROM jobs WHERE id = ?', [id])
-    await this.persist()
+    await this.backend.deleteJob(id)
   }
 
-  getConfig() {
-    return { openRouterApiKey: this.getConfigValue('openRouterApiKey') || '' }
+  async getConfig() {
+    let openRouterApiKey = (await this.getConfigValue('openRouterApiKey')) || ''
+
+    if (!openRouterApiKey) {
+      openRouterApiKey = await this.readConfigFromStorage()
+      if (openRouterApiKey) {
+        await this.setConfigValue('openRouterApiKey', openRouterApiKey)
+      }
+    }
+
+    return { openRouterApiKey }
   }
 
-  getConfigValue(key) {
-    const stmt = this.db.prepare('SELECT value FROM config WHERE key = ?')
-    stmt.bind([key])
-    const value = stmt.step() ? stmt.getAsObject().value : null
-    stmt.free()
-    return value
+  async getConfigValue(key) {
+    return this.backend.getConfigValue(key)
   }
 
-  setConfigValue(key, value) {
-    this.db.run('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', [key, value])
+  async setConfigValue(key, value) {
+    await this.backend.setConfigValue(key, value)
   }
 
   async saveConfig(config) {
     if (config.openRouterApiKey !== undefined) {
-      this.setConfigValue('openRouterApiKey', config.openRouterApiKey)
+      await this.setConfigValue('openRouterApiKey', config.openRouterApiKey)
+      await this.writeConfigToStorage(config)
     }
-    await this.persist()
+  }
+
+  async readConfigFromStorage() {
+    try {
+      const data = await Neutralino.storage.getData(CONFIG_STORAGE_KEY)
+      if (data) {
+        const parsed = JSON.parse(data)
+        return parsed.openRouterApiKey || ''
+      }
+    } catch (error) {
+      if (error.code !== 'NE_ST_NOSTKEX') {
+        console.error('Error reading config from storage:', error)
+      }
+    }
+    return ''
+  }
+
+  async writeConfigToStorage(config) {
+    try {
+      await Neutralino.storage.setData(CONFIG_STORAGE_KEY, JSON.stringify(config))
+    } catch (error) {
+      console.error('Error writing config to storage:', error)
+      throw error
+    }
   }
 }

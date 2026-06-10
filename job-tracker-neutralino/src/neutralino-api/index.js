@@ -25,7 +25,7 @@ class NeutralinoAPI {
   async getAllJobs() {
     await this.waitReady()
     try {
-      return { success: true, jobs: this.database.getAllJobs() }
+      return { success: true, jobs: await this.database.getAllJobs() }
     } catch (error) {
       console.error('Error getting jobs:', error)
       return { success: false, error: error.message }
@@ -35,7 +35,7 @@ class NeutralinoAPI {
   async saveJob(rawText, company, title) {
     await this.waitReady()
     try {
-      const config = this.database.getConfig()
+      const config = await this.database.getConfig()
       const cleanedData = await cleanJobDescription(
         rawText,
         company,
@@ -66,7 +66,7 @@ class NeutralinoAPI {
   async getJob(id) {
     await this.waitReady()
     try {
-      return { success: true, job: this.database.getJob(id) }
+      return { success: true, job: await this.database.getJob(id) }
     } catch (error) {
       console.error('Error getting job:', error)
       return { success: false, error: error.message }
@@ -87,12 +87,12 @@ class NeutralinoAPI {
   async reprocessJob(id) {
     await this.waitReady()
     try {
-      const job = this.database.getJob(id)
+      const job = await this.database.getJob(id)
       if (!job) {
         return { success: false, error: 'Job not found' }
       }
 
-      const config = this.database.getConfig()
+      const config = await this.database.getConfig()
       const cleanedData = await cleanJobDescription(
         job.raw_text,
         job.company,
@@ -121,7 +121,7 @@ class NeutralinoAPI {
   async getConfig() {
     await this.waitReady()
     try {
-      return { success: true, config: this.database.getConfig() }
+      return { success: true, config: await this.database.getConfig() }
     } catch (error) {
       console.error('Error getting config:', error)
       return { success: false, error: error.message }
@@ -135,6 +135,16 @@ class NeutralinoAPI {
       return { success: true }
     } catch (error) {
       console.error('Error saving config:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
+  async getDbPath() {
+    await this.waitReady()
+    try {
+      return { success: true, path: this.database.getDbPath() }
+    } catch (error) {
+      console.error('Error getting database path:', error)
       return { success: false, error: error.message }
     }
   }

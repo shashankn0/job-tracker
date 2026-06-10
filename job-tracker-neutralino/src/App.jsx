@@ -8,10 +8,12 @@ function App() {
   const [jobs, setJobs] = useState([])
   const [selectedJob, setSelectedJob] = useState(null)
   const [apiKey, setApiKey] = useState('')
+  const [dbPath, setDbPath] = useState('')
 
   useEffect(() => {
     loadJobs()
     loadConfig()
+    loadDbPath()
   }, [])
 
   const loadJobs = async () => {
@@ -37,6 +39,19 @@ function App() {
       }
     } catch (error) {
       console.error('Error loading config:', error)
+    }
+  }
+
+  const loadDbPath = async () => {
+    try {
+      if (window.electronAPI?.getDbPath) {
+        const result = await window.electronAPI.getDbPath()
+        if (result.success) {
+          setDbPath(result.path || '')
+        }
+      }
+    } catch (error) {
+      console.error('Error loading database path:', error)
     }
   }
 
@@ -136,6 +151,7 @@ function App() {
       {activeTab === 'settings' && (
         <SettingsTab 
           apiKey={apiKey}
+          dbPath={dbPath}
           onSaveConfig={handleSaveConfig}
         />
       )}

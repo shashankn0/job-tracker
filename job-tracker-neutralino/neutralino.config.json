@@ -8,6 +8,7 @@
   "url": "/index.html",
   "enableServer": true,
   "enableNativeAPI": true,
+  "enableExtensions": true,
   "tokenSecurity": "one-time",
   "logging": {
     "enabled": true,
@@ -18,7 +19,16 @@
     "os.*",
     "debug.log",
     "filesystem.*",
-    "storage.*"
+    "storage.*",
+    "extensions.*"
+  ],
+  "extensions": [
+    {
+      "id": "com.jobtracker.sqlite",
+      "commandWindows": "\"${NL_PATH}/extensions/sqlite-ext/sqlite-ext.exe\" \"${NL_OSDATAPATH}/job-tracker/jobs.db\"",
+      "commandLinux": "${NL_PATH}/extensions/sqlite-ext/sqlite-ext \"${NL_OSDATAPATH}/job-tracker/jobs.db\"",
+      "commandDarwin": "${NL_PATH}/extensions/sqlite-ext/sqlite-ext \"${NL_OSDATAPATH}/job-tracker/jobs.db\""
+    }
   ],
   "modes": {
     "window": {

@@ -6,6 +6,9 @@
     "dev": "vite",
     "build": "vite build && vite build --config vite.api.config.js",
     "build:api": "vite build --config vite.api.config.js",
+    "setup:extension": "powershell -ExecutionPolicy Bypass -File scripts/setup-extension-deps.ps1",
+    "build:extension": "powershell -ExecutionPolicy Bypass -File scripts/build-extension.ps1",
+    "build:all": "npm run build:extension && npm run build",
     "postinstall": "node scripts/copy-sql-wasm.js",
     "preview": "vite preview"
   },

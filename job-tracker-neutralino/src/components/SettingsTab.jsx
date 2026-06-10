@@ -1,7 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-function SettingsTab({ apiKey, onSaveConfig }) {
+function SettingsTab({ apiKey, dbPath, onSaveConfig }) {
   const [localApiKey, setLocalApiKey] = useState(apiKey)
+
+  useEffect(() => {
+    setLocalApiKey(apiKey)
+  }, [apiKey])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -70,6 +74,23 @@ function SettingsTab({ apiKey, onSaveConfig }) {
         </button>
       </form>
 
+      {dbPath && (
+        <div style={{ marginTop: '30px', padding: '15px', backgroundColor: '#333', borderRadius: '4px' }}>
+          <h3 style={{ marginBottom: '10px', color: '#e0344a' }}>Database</h3>
+          <div style={{ fontSize: '13px', lineHeight: '1.6' }}>
+            <p style={{ marginBottom: '8px' }}>
+              Jobs are stored in a standard SQLite file. Close Job Tracker before opening it with external tools.
+            </p>
+            <code style={{ display: 'block', wordBreak: 'break-all', fontSize: '12px', color: '#ccc' }}>
+              {dbPath}
+            </code>
+            <p style={{ marginTop: '10px', fontSize: '12px', color: '#888' }}>
+              Open with DB Browser for SQLite, DBeaver, or the <code>sqlite3</code> CLI.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div style={{ marginTop: '30px', padding: '15px', backgroundColor: '#333', borderRadius: '4px' }}>
         <h3 style={{ marginBottom: '10px', color: '#e0344a' }}>About</h3>
         <div style={{ fontSize: '13px', lineHeight: '1.6' }}>
@@ -80,7 +101,7 @@ function SettingsTab({ apiKey, onSaveConfig }) {
           <strong>Features:</strong>
           <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
             <li>AI-powered job description cleaning using Claude 3 Haiku</li>
-            <li>Persistent SQL-based database using SQLite</li>
+            <li>Native SQLite database via C++ extension</li>
             <li>Clean, organized job descriptions</li>
             <li>Search and filter functionality</li>
           </ul>
